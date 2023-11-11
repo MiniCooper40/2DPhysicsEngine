@@ -20,7 +20,11 @@ h3 = PolygonHitbox(
 r3 = RigidBody(hitbox=h3)
 p3: PhysicalEntity = PhysicalEntity(r3)
 
-ps = [p, p2, p3]
+h4 = CircleHitbox(Circle(radius=30, position=Vector(200, 200)))
+r4 = RigidBody(hitbox=h4)
+p4: PhysicalEntity = PhysicalEntity(r4)
+
+ps = [p, p2, p3, p4]
 e = GameEnvironment(ps)
 
 canvas = PhysicsCanvas(e)

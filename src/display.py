@@ -99,6 +99,15 @@ class PhysicsCanvas:
             if isinstance(h_a,PolygonHitbox) and isinstance(h_b, PolygonHitbox):
                 self.collision_detector.polygon_polygon_collision(h_a.polygon, h_b.polygon)
 
+            elif isinstance(h_a,PolygonHitbox) and isinstance(h_b, CircleHitbox):
+                self.collision_detector.circle_polygon_collision(h_b.circle, h_a.polygon)
+
+            elif isinstance(h_a,CircleHitbox) and isinstance(h_b, PolygonHitbox):
+                self.collision_detector.circle_polygon_collision(h_a.circle, h_b.polygon)
+
+            elif isinstance(h_a, CircleHitbox) and isinstance(h_b, CircleHitbox):
+                self.collision_detector.circle_circle_collision(h_a.circle, h_b.circle)
+
         self.root.update()
 
 
