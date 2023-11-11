@@ -30,7 +30,7 @@ class Hitbox:
         """Visitor pattern for collision calculating"""
         pass
 
-    def accept_hitbox_renderer(self, hitbox_renderer):
+    def accept_hitbox_renderer(self, hitbox_renderer, **kwargs):
         """"Visitor pattern for rendering hitbox"""
         pass
 
@@ -43,8 +43,12 @@ class Hitbox:
 
 class CircleHitbox(Hitbox):
 
-    def __init__(self, circle: Circle):
+    def __init__(self, circle: Circle, intersects_circle=None, intersects_polygon=None, polygon_collision=None, circle_collision=None):
         self.circle = circle
+        self.intersects_circle = intersects_circle
+        self.intersects_polygon = intersects_polygon
+        self.polygon_collision = polygon_collision
+        self.circle_collision = circle_collision
 
     def accept_intersection(self, other_hitbox):
         return other_hitbox.intersects_circle_hitbox(self)
@@ -58,18 +62,18 @@ class CircleHitbox(Hitbox):
     def rotate(self, degrees):
         self.circle.transform(Matrix.rotate(degrees))
 
-    def set_angle(self, degrees):
-        if self.circle.direction != degrees:
-            self.circle.translate(Matrix.rotate(degrees - self.circle.direction))
-
-    def accept_hitbox_renderer(self, hitbox_renderer):
-        hitbox_renderer.render_circle_hitbox(self)
+    def accept_hitbox_renderer(self, hitbox_renderer,  **kwargs):
+        hitbox_renderer.render_circle_hitbox(self,  **kwargs)
 
 
 class PolygonHitbox(Hitbox):
 
-    def __init__(self, polygon):
+    def __init__(self, polygon, intersects_circle=None, intersects_polygon=None, polygon_collision=None, circle_collision=None):
         self.polygon = polygon
+        self.intersects_circle = intersects_circle
+        self.intersects_polygon = intersects_polygon
+        self.polygon_collision = polygon_collision
+        self.circle_collision = circle_collision
 
     def accept_intersection(self, other_hitbox):
         return other_hitbox.intersects_polygon_hitbox(self)
@@ -83,8 +87,8 @@ class PolygonHitbox(Hitbox):
     def rotate(self, degrees):
         self.polygon.rotate(degrees)
 
-    def accept_hitbox_renderer(self, hitbox_renderer):
-        hitbox_renderer.render_polygon_hitbox(self)
+    def accept_hitbox_renderer(self, hitbox_renderer, **kwargs):
+        hitbox_renderer.render_polygon_hitbox(self, **kwargs)
 
 
 class Collision:

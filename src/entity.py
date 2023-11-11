@@ -1,12 +1,19 @@
 from physicslib import *
 
 
+class Sprite:
+
+    def __init__(self, image=None, angle=0, position=Vector(0, 0)):
+        self.image = image
+        self.angle = angle
+        self.position = position
+
+
 class RenderProperties:
 
-    def __init__(self, image=None, position=Vector(0, 0), angle=0):
-        self.image = image
-        self.position = position
-        self.angle = angle
+    def __init__(self, sprite=Sprite(), movement_properties=MovementProperties()):
+        self.sprite = sprite
+        self.movement_properties = movement_properties
 
 
 class Body:
@@ -24,6 +31,9 @@ class Body:
         pass
 
     def rotate(self, angle):
+        pass
+
+    def intersects_with(self, other):
         pass
 
 
@@ -54,26 +64,6 @@ class RigidBody(Body):
 
 class PhysicalEntity:
 
-    def __init__(self, rigid_body: RigidBody, movement_properties: MovementProperties = MovementProperties(),
-                 render_properties: RenderProperties = None):
+    def __init__(self, rigid_body: RigidBody, render_properties: RenderProperties = None):
         self.rigid_body = rigid_body
-        self.movement_properties = movement_properties
         self.render_properties = render_properties
-
-    def collision_with(self, other: Body) -> Collision:
-        return self.rigid_body.get_hitbox().accept_collision(other.get_hitbox())
-
-    def intersects_with(self, other: Body) -> bool:
-        return self.rigid_body.get_hitbox().accept_intersection(other.get_hitbox())
-
-    def get_movement_properties(self):
-        return self.movement_properties
-
-    def set_movement_properties(self, movement_properties: MovementProperties):
-        self.movement_properties = movement_properties
-
-    def move(self, displacement):
-        self.rigid_body.hitbox.move(displacement)
-
-    def rotate(self, degrees):
-        self.rigid_body.rotate(degrees)

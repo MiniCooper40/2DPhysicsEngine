@@ -15,6 +15,10 @@ class Vector:
         length = self.length()
         return Vector(self.x / length, self.y / length)
 
+    def normalized_normal(self):
+        length = self.length()
+        return Vector(-self.y/length, self.x/length)
+
     def dot(self, other):
         return self.x * other.x + self.y * other.y
 
@@ -96,26 +100,10 @@ class Polygon(Shape):
     def __repr__(self):
         return f'Polygon(vertices={self.vertices}, position={self.position})'
 
-    def display(self, canvas):
-        coordinates = []
-        for vertex in self.vertices:
-            coordinates.append(vertex.x + self.position.x)
-            coordinates.append(vertex.y + self.position.y)
-
-        print(coordinates)
-
-        canvas.create_polygon(coordinates)
-
-    def transform(self, matrix):
-        self.vertices = [matrix * vertex for vertex in self.vertices]
-        print(self)
-
     def rotate(self, degrees):
         self.angle += degrees
         transformation = Matrix.rotate(self.angle)
         self.vertices = [transformation * vertex for vertex in self.initial_vertices]
-        print(self)
 
     def translate(self, displacement):
-        # self.vertices = [displacement + vertex for vertex in self.vertices]
         self.position = self.position + displacement
