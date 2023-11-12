@@ -11,7 +11,7 @@ r = RigidBody(hitbox=h)
 p: PhysicalEntity = PhysicalEntity(r)
 
 h2 = PolygonHitbox(
-    Polygon([Vector(-20, 20), Vector(20, 20), Vector(20, -20), Vector(-20, -20)], position=Vector(60, 60)))
+    Polygon([Vector(-20, 20), Vector(20, 20), Vector(20, -20), Vector(-20, -20)], position=Vector(300, 160)))
 r2 = RigidBody(hitbox=h2)
 p2: PhysicalEntity = PhysicalEntity(r2)
 

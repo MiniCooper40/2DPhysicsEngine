@@ -93,11 +93,9 @@ class PolygonHitbox(Hitbox):
 
 class Collision:
 
-    def __init__(self, collision_start: Vector, collision_end: Vector, collision_normal: Vector,
-                 collision_depth: float):
-        self.collision_start = collision_start
-        self.collision_end = collision_end
-        self.collision_normal = collision_normal
-        self.collision_depth = collision_depth
+    def __init__(self, start: Vector, normal: Vector, depth: float):
+        self.start = start
+        self.normal = normal
+        self.depth = depth
 
 

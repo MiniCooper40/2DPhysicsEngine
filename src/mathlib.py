@@ -19,6 +19,9 @@ class Vector:
         length = self.length()
         return Vector(-self.y/length, self.x/length)
 
+    def normal(self):
+        return Vector(-self.y, self.x)
+
     def dot(self, other):
         return self.x * other.x + self.y * other.y
 
@@ -107,3 +110,18 @@ class Polygon(Shape):
 
     def translate(self, displacement):
         self.position = self.position + displacement
+
+    def edges(self):
+        edges = []
+
+        for index in range(1, len(self.vertices)):
+            edges.append((self.vertices[index] - self.vertices[index - 1]))
+
+        edges.append((self.vertices[0] - self.vertices[-1]))
+        return edges
+
+    def edge_normals(self):
+        return [edge.normal().normalized() for edge in self.edges()]
+
+    def absolute_vertices(self):
+        return [vertex + self.position for vertex in self.vertices]
