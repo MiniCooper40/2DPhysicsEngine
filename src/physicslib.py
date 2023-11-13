@@ -21,14 +21,9 @@ class PhysicalProperties:
 
 
 class Hitbox:
-
-    def accept_intersection(self, other_hitbox):
-        """Visitor pattern for intersection checking"""
-        pass
-
-    def accept_collision(self, other_hitbox):
-        """Visitor pattern for collision calculating"""
-        pass
+    """
+    A shape that represents a region of space with physical significance.
+    """
 
     def accept_hitbox_renderer(self, hitbox_renderer, **kwargs):
         """"Visitor pattern for rendering hitbox"""
@@ -43,18 +38,8 @@ class Hitbox:
 
 class CircleHitbox(Hitbox):
 
-    def __init__(self, circle: Circle, intersects_circle=None, intersects_polygon=None, polygon_collision=None, circle_collision=None):
+    def __init__(self, circle: Circle,):
         self.circle = circle
-        self.intersects_circle = intersects_circle
-        self.intersects_polygon = intersects_polygon
-        self.polygon_collision = polygon_collision
-        self.circle_collision = circle_collision
-
-    def accept_intersection(self, other_hitbox):
-        return other_hitbox.intersects_circle_hitbox(self)
-
-    def accept_collision(self, other_hitbox):
-        return other_hitbox.collision_with_circle_hitbox(self)
 
     def move(self, displacement: Vector):
         self.circle.translate(displacement)
@@ -68,18 +53,8 @@ class CircleHitbox(Hitbox):
 
 class PolygonHitbox(Hitbox):
 
-    def __init__(self, polygon, intersects_circle=None, intersects_polygon=None, polygon_collision=None, circle_collision=None):
+    def __init__(self, polygon):
         self.polygon = polygon
-        self.intersects_circle = intersects_circle
-        self.intersects_polygon = intersects_polygon
-        self.polygon_collision = polygon_collision
-        self.circle_collision = circle_collision
-
-    def accept_intersection(self, other_hitbox):
-        return other_hitbox.intersects_polygon_hitbox(self)
-
-    def accept_collision(self, other_hitbox):
-        return other_hitbox.collision_with_polygon_hitbox(self)
 
     def move(self, displacement: Vector):
         self.polygon.translate(displacement)
@@ -91,11 +66,55 @@ class PolygonHitbox(Hitbox):
         hitbox_renderer.render_polygon_hitbox(self, **kwargs)
 
 
-class Collision:
+class Body:
+    """
+    A particular region of space with some physical significance.  This region may move, and contact with it by
+    another body may have significance for both bodies involved.
+    """
 
-    def __init__(self, start: Vector, normal: Vector, depth: float):
-        self.start = start
-        self.normal = normal
-        self.depth = depth
+    def get_hitbox(self):
+        pass
+
+    def get_movement_properties(self, movement_properties):
+        pass
+
+    def set_movement_properties(self, movement_properties):
+        pass
+
+    def move(self, displacement):
+        pass
+
+    def rotate(self, angle):
+        pass
 
 
+class RigidBody(Body):
+    """
+    A body that represents a solid, physical object that does not deform upon collision (a rigid body).
+    """
+
+    def __init__(self, hitbox: Hitbox, physical_properties: PhysicalProperties = PhysicalProperties()):
+        self.hitbox = hitbox
+        self.physical_properties = physical_properties
+
+    def get_hitbox(self):
+        return self.hitbox
+
+    def get_physical_properties(self):
+        return self.physical_properties
+
+    def move(self, displacement):
+        self.hitbox.move(displacement)
+
+    def rotate(self, degrees):
+        self.hitbox.rotate(degrees)
+
+
+class Region:
+    """
+    A region of coordinates in space.  A region might have impact on the physical properties, movement, logic,
+    etc... of bodies in a particular region.
+    """
+
+    def get_hitbox(self):
+        pass

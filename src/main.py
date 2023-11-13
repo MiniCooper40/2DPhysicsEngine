@@ -1,5 +1,6 @@
 
 from display import *
+from src.physicslib import RigidBody
 
 
 def on_key_pressed(key):
@@ -25,6 +26,6 @@ r4 = RigidBody(hitbox=h4)
 p4: PhysicalEntity = PhysicalEntity(r4)
 
 ps = [p, p2, p3, p4]
-e = GameEnvironment(ps)
+e = Environment(ps)
 
 canvas = PhysicsCanvas(e)

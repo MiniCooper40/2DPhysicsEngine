@@ -1,7 +1,7 @@
 from entity import *
 
 
-class GameEnvironment:
+class Environment:
 
     def select_next_entity(self):
         if self.selected_index == len(self.physical_entities)-1:

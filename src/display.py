@@ -1,16 +1,12 @@
 import itertools
 import time
 
-from mathlib import *
 from tkinter import *
-from entity import *
-from physicslib import *
-import math
-from game_environment import *
-from src.collision import SATCollisionDetector, find_axis_of_least_penetration, EfficientSATCollisionDetector, \
-    SimpleCollisionResolver
+from environment import *
+from src.collision import EfficientSATCollisionDetector, \
+    SimpleCollisionResolver, Collision
 
-speed = 8
+speed = 4
 angular_velocity = 0.3
 
 
@@ -57,7 +53,7 @@ class PhysicsCanvas:
                 delta_time = 0
             self.root.update()
 
-    def __init__(self, environment: GameEnvironment, is_debugging=True):
+    def __init__(self, environment: Environment, is_debugging=True):
         self.is_debugging = is_debugging
         self.environment = environment
         self.root = Tk()
@@ -108,9 +104,9 @@ class PhysicsCanvas:
                 elif isinstance(h_a, CircleHitbox) and isinstance(h_b, CircleHitbox):
                     collision = self.collision_detector.circle_circle_collision(h_a.circle, h_b.circle)
                 self.collision_renderer.render(collision)
-                #
-                # if collision is not None:
-                #     self.collision_resolver.resolve_collision(r_a, r_b, collision)
+
+                if collision is not None:
+                    self.collision_resolver.resolve_collision(r_a, r_b, collision)
 
                 print(f'collision! {collision}')
 
@@ -182,19 +178,3 @@ class TkinterHitboxRenderer(HitboxRenderer):
 
         self.canvas.create_oval(x_start, y_start, x_end, y_end, outline=color)
         self.canvas.create_oval(circle.position.x-1, circle.position.y-1, circle.position.x+1, circle.position.y+1)
-
-    class CollisionResolver:
-
-        def resolve_collision(self, body_a: RigidBody, body_b: RigidBody, collision):
-            pass
-
-    class SimpleCollisionResolver(CollisionResolver):
-
-        def resolve_collision(self, body_a: RigidBody, body_b: RigidBody, collision):
-            normal = collision.normal
-            depth = collision.depth
-            start = collision.start
-
-            correction = normal.scaled(depth)
-
-            body_a.move(correction)
