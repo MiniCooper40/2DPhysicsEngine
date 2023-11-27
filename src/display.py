@@ -4,7 +4,7 @@ import time
 from tkinter import *
 from environment import *
 from src.collision import EfficientSATCollisionDetector, \
-    SimpleCollisionResolver, Collision
+    SimpleCollisionResolver, Collision, PhysicalCollisionResolver
 
 speed = 4
 angular_velocity = 0.3
@@ -13,27 +13,33 @@ angular_velocity = 0.3
 class PhysicsCanvas:
 
     def rotate_right(self, key):
-        self.environment.selected_entity.rigid_body.rotate(degrees=angular_velocity)
+        # self.environment.selected_entity.rigid_body.rotate(degrees=angular_velocity)
+        self.environment.selected_entity.rigid_body.get_movement_properties().angular_velocity += 0.3
         self.draw()
 
     def rotate_left(self, key):
-        self.environment.selected_entity.rigid_body.rotate(degrees=-angular_velocity)
+        # self.environment.selected_entity.rigid_body.rotate(degrees=-angular_velocity)
+        self.environment.selected_entity.rigid_body.get_movement_properties().angular_velocity -= 0.3
         self.draw()
 
     def move_up(self, key):
-        self.environment.selected_entity.rigid_body.move(Vector(0, -speed))
+        # self.environment.selected_entity.rigid_body.move(Vector(0, -speed))
+        self.environment.selected_entity.rigid_body.movement_properties.velocity += Vector(0, -speed)
         self.draw()
 
     def move_down(self, key):
-        self.environment.selected_entity.rigid_body.move(Vector(0, speed))
+        # self.environment.selected_entity.rigid_body.move(Vector(0, speed))
+        self.environment.selected_entity.rigid_body.movement_properties.velocity += Vector(0, speed)
         self.draw()
 
     def move_right(self, key):
-        self.environment.selected_entity.rigid_body.move(Vector(speed, 0))
+        # self.environment.selected_entity.rigid_body.move(Vector(speed, 0))
+        self.environment.selected_entity.rigid_body.movement_properties.velocity += Vector(speed, 0)
         self.draw()
 
     def move_left(self, key):
-        self.environment.selected_entity.rigid_body.move(Vector(-speed, 0))
+        # self.environment.selected_entity.rigid_body.move(Vector(-speed, 0))
+        self.environment.selected_entity.rigid_body.movement_properties.velocity += Vector(-speed, 0)
         self.draw()
 
     def next_selection(self, key):
@@ -47,10 +53,15 @@ class PhysicsCanvas:
         delta_time = 0
         while True:
             current_time = time.time()
-            delta_time = delta_time + (current_time - last_time)
+            current_delta = current_time - last_time
+            self.environment.integrate(current_delta)
+            delta_time = delta_time + current_delta
             last_time = current_time
             if SPF <= delta_time:
                 delta_time = 0
+
+            self.resolve_collisions()
+            self.draw_hitboxes()
             self.root.update()
 
     def __init__(self, environment: Environment, is_debugging=True):
@@ -72,14 +83,27 @@ class PhysicsCanvas:
 
         self.collision_detector = EfficientSATCollisionDetector()
         self.collision_resolver = SimpleCollisionResolver()
+        self.physical_collision_resolver = PhysicalCollisionResolver()
 
         self.canvas.pack()
         self.game_loop()
         self.draw()
 
+    def draw_hitboxes(self):
+        self.canvas.delete("all")
+        if self.is_debugging:
+            for entity in self.environment.physical_entities:
+                selected = entity is self.environment.selected_entity
+                self.hitbox_renderer.render(entity.rigid_body.get_hitbox(), selected=selected)
+
     def draw(self):
         self.canvas.delete("all")
 
+        self.resolve_collisions()
+
+        self.root.update()
+
+    def resolve_collisions(self):
         for i in range(1):
             for (a, b) in itertools.product(self.environment.physical_entities, repeat=2):
                 if a is b:
@@ -107,15 +131,7 @@ class PhysicsCanvas:
 
                 if collision is not None:
                     self.collision_resolver.resolve_collision(r_a, r_b, collision)
-
-                print(f'collision! {collision}')
-
-        if self.is_debugging:
-            for entity in self.environment.physical_entities:
-                selected = entity is self.environment.selected_entity
-                self.hitbox_renderer.render(entity.rigid_body.get_hitbox(), selected=selected)
-
-        self.root.update()
+                    self.physical_collision_resolver.resolve_collision(r_a, r_b, collision)
 
 
 class HitboxRenderer:
@@ -177,4 +193,5 @@ class TkinterHitboxRenderer(HitboxRenderer):
         color = 'red' if kwargs.get('selected', False) else 'black'
 
         self.canvas.create_oval(x_start, y_start, x_end, y_end, outline=color)
-        self.canvas.create_oval(circle.position.x-1, circle.position.y-1, circle.position.x+1, circle.position.y+1)
+        self.canvas.create_oval(circle.position.x - 1, circle.position.y - 1, circle.position.x + 1,
+                                circle.position.y + 1)

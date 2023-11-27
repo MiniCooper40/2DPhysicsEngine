@@ -84,7 +84,8 @@ class Circle(Shape):
         canvas.create_oval(x_start, y_start, x_end, y_end)
 
     def transform(self, matrix):
-        print(matrix)
+        pass
+        # print(matrix)
 
     def translate(self, displacement):
         self.position = self.position + displacement

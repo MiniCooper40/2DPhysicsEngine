@@ -111,14 +111,14 @@ class EfficientSATCollisionDetector(CollisionDetector):
             if distance_to_center > min_distance:
                 min_distance = distance_to_center
                 nearest_edge_index = edge_index
-        print(f'nearest_edge_index = {nearest_edge_index}, min_distance={min_distance}')
+        # print(f'nearest_edge_index = {nearest_edge_index}, min_distance={min_distance}')
 
         if min_distance >= 0:
             start_vertex_to_circle = circle.position - vertices[nearest_edge_index]
             edge_direction = vertices[(nearest_edge_index + 1) % len(edges)] - vertices[nearest_edge_index]
 
             if start_vertex_to_circle.dot(edge_direction) <= 0:  # In R1
-                print("in R1")
+                # print("in R1")
                 if start_vertex_to_circle.length() > circle.radius:
                     return None
 
@@ -135,14 +135,14 @@ class EfficientSATCollisionDetector(CollisionDetector):
                 if end_vertex_to_circle.dot(edge_direction) <= 0:  # In R2
                     if end_vertex_to_circle.length() > circle.radius:
                         return None
-                    print("in R2")
+                    # print("in R2")
                     collision_normal = end_vertex_to_circle.normalized().scaled(-1)
                     collision_depth = circle.radius - end_vertex_to_circle.length()
                     collision_start = circle.position + collision_normal.scaled(circle.radius)
 
                     return Collision(collision_start, collision_normal, collision_depth)
                 elif min_distance < circle.radius:
-                    print("in R3")
+                    # print("in R3")
                     to_circle_center = edge_normals[nearest_edge_index].scaled(circle.radius)
 
                     collision_depth = circle.radius - min_distance
@@ -209,3 +209,28 @@ class SimpleCollisionResolver(CollisionResolver):
         body_a.move(correction.scaled(0.5))
         body_b.move(correction.scaled(-0.5))
 
+
+class PhysicalCollisionResolver(CollisionResolver):
+
+    def resolve_collision(self, body_a: RigidBody, body_b: RigidBody, collision: Collision):
+        movement_a = body_a.movement_properties
+        movement_b = body_b.movement_properties
+
+        mass_a = body_a.physical_properties.mass
+        mass_b = body_b.physical_properties.mass
+
+        restitution_a = body_a.physical_properties.restitution
+        restitution_b = body_b.physical_properties.restitution
+
+        point_of_collision = collision.start
+        normal = collision.normal
+
+        relative_velocity = movement_a.velocity - movement_b.velocity
+
+        impulse = (-(1 + restitution_a) * (relative_velocity.dot(normal))) / (
+                normal.dot(normal) * (1 / mass_a + 1 / mass_b))
+
+        # print(f'impulse is {impulse}')
+
+        movement_a.velocity += normal.scaled(impulse / mass_a)
+        movement_b.velocity -= normal.scaled(impulse / mass_b)

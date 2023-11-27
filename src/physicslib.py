@@ -1,4 +1,3 @@
-
 from mathlib import *
 
 
@@ -11,11 +10,21 @@ class MovementProperties:
         self.angular_velocity = angular_velocity
         self.angular_acceleration = 0
 
+    def integrate(self, delta_time):
+        self.velocity += self.acceleration.scaled(delta_time)
+        self.angular_velocity += self.angular_acceleration * delta_time
+
+    def integrate_position(self, delta_time):
+        return self.velocity.scaled(delta_time)
+
+    def integrate_rotate(self, delta_time):
+        return self.angular_velocity * delta_time
+
 
 class PhysicalProperties:
     """Properties related to the physical composition of an object"""
 
-    def __init__(self, mass=1, restitution=0.5):
+    def __init__(self, mass=1, restitution=0.1):
         self.mass = mass
         self.restitution = restitution
 
@@ -38,7 +47,7 @@ class Hitbox:
 
 class CircleHitbox(Hitbox):
 
-    def __init__(self, circle: Circle,):
+    def __init__(self, circle: Circle, ):
         self.circle = circle
 
     def move(self, displacement: Vector):
@@ -47,8 +56,8 @@ class CircleHitbox(Hitbox):
     def rotate(self, degrees):
         self.circle.transform(Matrix.rotate(degrees))
 
-    def accept_hitbox_renderer(self, hitbox_renderer,  **kwargs):
-        hitbox_renderer.render_circle_hitbox(self,  **kwargs)
+    def accept_hitbox_renderer(self, hitbox_renderer, **kwargs):
+        hitbox_renderer.render_circle_hitbox(self, **kwargs)
 
 
 class PolygonHitbox(Hitbox):
@@ -75,7 +84,7 @@ class Body:
     def get_hitbox(self):
         pass
 
-    def get_movement_properties(self, movement_properties):
+    def get_movement_properties(self) -> MovementProperties:
         pass
 
     def set_movement_properties(self, movement_properties):
@@ -93,15 +102,23 @@ class RigidBody(Body):
     A body that represents a solid, physical object that does not deform upon collision (a rigid body).
     """
 
-    def __init__(self, hitbox: Hitbox, physical_properties: PhysicalProperties = PhysicalProperties()):
+    def __init__(self, hitbox: Hitbox, physical_properties: PhysicalProperties = PhysicalProperties(),
+                 movement_properties=MovementProperties()):
         self.hitbox = hitbox
         self.physical_properties = physical_properties
+        self.movement_properties = movement_properties
 
     def get_hitbox(self):
         return self.hitbox
 
     def get_physical_properties(self):
         return self.physical_properties
+
+    def get_movement_properties(self) -> MovementProperties:
+        return self.movement_properties
+
+    def set_movement_properties(self, movement_properties):
+        self.movement_properties = movement_properties
 
     def move(self, displacement):
         self.hitbox.move(displacement)
@@ -118,3 +135,4 @@ class Region:
 
     def get_hitbox(self):
         pass
+
